@@ -1,0 +1,18 @@
+audio_dir: ${paths.data_dir}
+label_dir: ${paths.label_dir}
+output_dir: ${paths.preprocessed_dir}
+prediction_dir: ${paths.prediction_dir}
+data_dir: ${paths.data_dir}
+
+cqt_hparams:
+  down_sampling_rate: 22050
+  normalize_wave: true
+  stft_type: "cqt"
+  bins_per_octave: 24
+  total_n_bins: 192
+  hop_length: 256
+  db_scale: false
+  normalize_cqt: false
+
+split_unit_in_bars: 4
+split_hop_bar_len: 1
