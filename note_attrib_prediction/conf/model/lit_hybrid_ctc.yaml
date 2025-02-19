@@ -1,0 +1,85 @@
+_target_: src.models.hybrid_ctc_lit_module.HybridCTCLitModule
+output_dir: ${paths.output_dir}
+prediction_dir: ${paths.prediction_dir}
+
+optimizer:
+  _target_: torch.optim.RAdam
+  _partial_: true
+  lr: 0.0005
+  weight_decay: 0.0
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  _partial_: True
+  T_max: 150
+
+
+loss_func:
+  _target_: src.models.loss.loss.CustomLoss
+  _partial_: False
+  mask_padding: True
+
+hybrid_ctc_net:
+  _target_: src.models.network.hybrid_ctc_net.HybridCTCNet
+  _partial_: True
+  conv_stack:
+    _target_: src.models.network.hybrid_ctc_net.ConvStack
+    input_size: 192
+    output_size: 512
+    conv_kernel_size: 5
+    conv1_out_ch: 32
+    conv1_stride: 2
+    conv2_out_ch: 32
+    conv2_stride: 2
+    conv3_out_ch: 64
+    conv3_stride: 2
+    activation: "LeakyReLU"
+    conv_dropout: 0.25
+    fc_dropout: 0.4
+
+  conformer:
+    _target_: src.models.network.hybrid_ctc_net.Conformer
+    conformer_params:
+      input_size: 512
+      output_size: 128
+      attention_heads: 8
+      linear_units: 128
+      num_blocks: 6
+      dropout_rate: 0.1
+      positional_dropout_rate: 0.1
+      attention_dropout_rate: 0.1
+      input_layer: "linear"
+      positionwise_layer_type: "conv1d"
+      positionwise_conv_kernel_size: 3
+      normalize_before: True
+      macaron_style: True
+      rel_pos_type: "latest"
+      pos_enc_layer_type: "rel_pos"
+      selfattention_layer_type: "rel_selfattn"
+      cnn_module_kernel: 3
+
+  transformer_decoder:
+    _target_: src.models.network.hybrid_ctc_net.TransformerDecoder
+    _partial_: True
+    decoder_params:
+      encoder_output_size: 128
+      attention_heads: 4
+      linear_units: 128
+      num_blocks: 4
+      dropout_rate: 0.1
+      self_attention_dropout_rate: 0.1
+      input_layer: "embed"
+      use_output_layer: True
+      normalize_before: True
+      concat_after: False
+
+  ctc_output_layer:
+    _target_: src.models.network.hybrid_ctc_net.CTCOutputLayer
+    _partial_: True
+    input_size: 128
+    dropout: 0.2
+
+  # inferencing option
+  beam_search: False  # setting this to true will take considerably longer time to inference
+  beam_size: 3
+  max_inference_length: 1000
