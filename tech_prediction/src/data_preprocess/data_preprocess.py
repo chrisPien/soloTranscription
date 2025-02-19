@@ -62,9 +62,6 @@ def process_cqt(
         cqt_filename = os.path.join(
             output_dir, "cqt", f"{track_name}_0{unit_n}.npy"
         )
-        # onset_filename = os.path.join(
-        #     output_dir, "onset", f"{track_name}_0{unit_n}.npy"
-        # )
         frame_level_note_attrib_filename = os.path.join(
             output_dir, "frame_level_note_attrib", f"{track_name}_0{unit_n}.npy"
         )
@@ -100,22 +97,12 @@ def process_cqt(
         beta = 1 - alpha
         hybrid_cost = alpha * cost_matrix + beta * onset_cost_matrix
         _, wp = librosa.sequence.dtw(C=hybrid_cost)
-        #_, wp = librosa.sequence.dtw(C=cost_matrix)
 
         wp = np.flip(wp, axis=0)
         frame_level_tech = []
-        #print(wp)
-        # note_onset_time = []
-        # current = -1
         for tech, frame in wp:
             frame_level_tech.append(tatum_note[onset_tatum[tech]][2:])
-            # if tech != current:
-            #     current = tech
-        #         note_onset_time.append(frame*256/22050)
-        # np.save(onset_time_sec_filename, note_onset_time)
         np.save(cqt_filename, cqt[st:end])
-        #np.save(onset_filename, onset_env[st:end])
-        #np.save(onset_filename, frame_level_tech)
         np.save(frame_level_note_attrib_filename, frame_level_tech)
 
         frame_level_pred = os.path.join(
@@ -140,8 +127,6 @@ def get_tempo(
     f.close()
     label = [list(map(int, line)) for line in lines]
     tempo = 60 * (label[-1][0] + ((label[-1][1] + label[-1][2]) / 48)) * 4 / song_dur
-    # tempo_filename = os.path.join(output_dir, "tempo", f"{track_name}.npy")
-    # np.save(tempo_filename, tempo)
     return tempo
     
 
@@ -191,7 +176,6 @@ def get_target_file(
         upsampled_target = [target[i][2:] for i in indices]
         upsampled_target = np.array(upsampled_target)
         np.save(frame_level_gt, upsampled_target)
-        #print(target.shape)
 
 def get_full_target_file(
     track_name,
@@ -226,10 +210,7 @@ def get_full_target_file(
         full_target = np.array(full_target)
         full_target = np.delete(full_target, 0, 1)
         full_target[:, -1] += 1
-        #print(full_target)
         np.save(full_target_filename, full_target)
-        
-        #print(frame_len)
 
 def get_tempo_file(
     track_name,
@@ -245,11 +226,9 @@ def get_tempo_file(
         np.save(target_filename, round(tempo))
 
 
-# def solo_preprocess(audio_path, cfg) -> None:
 def solo_preprocess(args) -> None:
     audio_path, cfg = args
     track_name = os.path.split(audio_path)[1][:-4]
-    #print(track_name)
 
     audio, original_sr = librosa.load(audio_path)
     onset_env = librosa.onset.onset_strength(y=audio, sr=original_sr)
@@ -297,8 +276,6 @@ def solo_preprocess(args) -> None:
 def main(cfg: DictConfig) -> None:
     audio_filename_list = glob.glob(os.path.join(cfg.audio_dir, "*.wav"))
     for i in range(len(audio_filename_list)):
-        # if i == 1:
-        #     break
         solo_preprocess(audio_filename_list[i], cfg)
 
 if __name__ == "__main__":
