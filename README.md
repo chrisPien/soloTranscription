@@ -25,7 +25,6 @@ python src/train.py
 ```
 This will generate predicted note attribute to tech_prediction.
 Then for full tab prediction
-For note attribute prediction
 ```
 cd ..
 cd tech_prediction
