@@ -1,7 +1,6 @@
 import os
 import sys
-#sys.path.append(os.getcwd())
-os.environ["PROJECT_ROOT"] = "E:/solo_transcription/tech_prediction"
+os.environ["PROJECT_ROOT"] = # TODO: root path
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from utils.pylogger import get_pylogger
 from utils.utils import *
@@ -33,12 +32,6 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     """
 
     # set seed for random number generators in pytorch, numpy and python.random
-    # root = os.path.abspath(os.curdir)
-    # cfg_tokenizer = OmegaConf.load(os.path.join(root, "conf" , "tokenizer" , "tokenizer.yaml"))
-    # cfg_dataset = OmegaConf.load(os.path.join(root, "conf" , "dataset" , "dataset.yaml"))
-    # cfg_model = OmegaConf.load(os.path.join(root, "conf" , "model" , "lit_hybrid_ctc.yaml"))
-    # cfg_callbacks = OmegaConf.load(os.path.join(root, "conf", "callbacks", "default.yaml"))
-    # cfg_trainer = OmegaConf.load(os.path.join(root, "conf", "trainer", "default.yaml"))
 
     if cfg.get("seed"):
         pl.seed_everything(cfg.seed, workers=True)
@@ -61,7 +54,6 @@ def train(cfg: DictConfig) -> Tuple[dict, dict]:
     log.info("Instantiating loggers...")
     
     logger: List[WandbLogger] = instantiate_loggers(cfg.get("logger"))
-    #logger = instantiate_loggers(cfg.get("logger"))
 
     log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
     trainer: Trainer = hydra.utils.instantiate(
