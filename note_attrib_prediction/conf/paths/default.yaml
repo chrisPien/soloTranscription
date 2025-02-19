@@ -1,0 +1,27 @@
+root_dir: ${oc.env:PROJECT_ROOT}
+
+# path to data directory
+data_dir: ${paths.root_dir}/data/
+
+# path to preprocessed data directory
+preprocessed_dir: ${paths.root_dir}/data/preprocessed/
+
+# path to tech_prediction predicted data directory
+prediction_dir: ${paths.root_dir}/../tech_prediction/data/predicted_note_attrib
+
+# path to label directory
+label_dir: ${paths.root_dir}/data/string_fret_tatum_label
+
+# path to audio directory
+audio_dir: ${paths.root_dir}/data/wav
+
+# path to logging directory
+log_dir: ${paths.root_dir}/logs/
+
+# path to output directory, created dynamically by hydra
+# path generation pattern is specified in `configs/hydra/default.yaml`
+# use it to store all files generated during the run, like ckpts and metrics
+output_dir: ${hydra:runtime.output_dir}
+
+# path to working directory
+work_dir: ${hydra:runtime.cwd}
