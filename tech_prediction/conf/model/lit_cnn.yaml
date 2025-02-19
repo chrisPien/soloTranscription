@@ -1,0 +1,51 @@
+_target_: src.models.cnn_lit_module.CNNLitModule
+output_dir: ${paths.output_dir}
+
+optimizer:
+  _target_: torch.optim.RAdam
+  _partial_: true
+  lr: 0.001
+  weight_decay: 0.001
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  _partial_: True
+  T_max: 150
+
+
+loss_func:
+  _target_: src.models.loss.loss.CustomLoss
+  _partial_: False
+  mask_padding: True
+
+cnn_net:
+  _target_: src.models.network.cnn_net.CNNNet
+  _partial_: True
+  conv_stack:
+    _target_: src.models.network.cnn_net.ConvStack
+    input_size: 192
+    output_size: 512
+    conv_kernel_size: 5
+    conv1_out_ch: 32
+    conv1_stride: 2
+    conv2_out_ch: 32
+    conv2_stride: 2
+    conv3_out_ch: 64
+    conv3_stride: 2
+    activation: "LeakyReLU"
+    conv_dropout: 0.25
+    fc_dropout: 0.4
+
+  hierarchical_output_layer:
+    _target_: src.models.network.cnn_net.HierarchicalOutputLayer
+    _partial_: True
+    input_size: 512
+    group_size: 4
+    tech_size: 9
+    final_tech_size: 24
+    dropout: 0.2
+
+  # inferencing option
+  #beam_search: False  # setting this to true will take considerably longer time to inference
+  #beam_size: 3
+  max_inference_length: 1000
