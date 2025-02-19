@@ -1,8 +1,8 @@
 import os
 import sys
-# sys.path.append(os.getcwd())
-os.environ["PROJECT_ROOT"] = "E:/solo_transcription/note_attrib_prediction"
-# os.environ["PROJECT_ROOT"] = "E:/solo_transcription"
+
+'''os.environ["PROJECT_ROOT"] = # your root path'''
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from utils.pylogger import get_pylogger
