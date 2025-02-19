@@ -11,11 +11,12 @@ This directory is for storing the electric guitar tab, audio and preprocessed da
 This directory contains the source codes.
 
 
-## Setup
+<!--## Setup
 Download audio with following codes:
 ```
 
 ```
+-->
 
 ## Running the code
 For note attribute prediction
