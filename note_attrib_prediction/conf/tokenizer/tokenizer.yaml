@@ -1,0 +1,24 @@
+_target_: src.tokenizer.tokenizer.tokenizer_initializer
+pitch_range: 
+  start: 52
+  end: 101
+# 100: rest, 101: mute
+
+pos_range: 
+  start: 0
+  end: 47
+
+dur_range:
+  start: 0
+  end: 1
+
+string_range:
+  start: 0
+  end: 6
+
+fret_range:
+  start: -1
+  end: 23
+
+mask: False
+sos_eos: True
