@@ -1,0 +1,14 @@
+wandb:
+  _target_: pytorch_lightning.loggers.wandb.WandbLogger
+  name: "tset_n" # name of the run
+  save_dir: "${paths.output_dir}"
+  offline: False
+  id: null # pass correct id to resume experiment!
+  anonymous: null # enable anonymous logging
+  project: "Electric_Guitar_Solo_Transcription"
+  log_model: False # upload lightning ckpts
+  prefix: "" # a string to put at the beginning of metric keys
+  # entity: "" # set to name of your wandb team
+  group: ""
+  tags: [] #["${datamodule.test_player_n}"]
+  job_type: "tset_n"
