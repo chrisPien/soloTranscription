@@ -1,0 +1,12 @@
+_target_: src.dataset.dataset.SoloDatasetModule
+data_dir: ${paths.data_dir}
+train_val_split_ratio: 0.85
+batch_size: 3
+# cache_dataset: False
+num_workers: ${local_env.n_workers}
+#dataloader_workers: ${local_env.n_workers}
+#vocab_size: 24
+dataloader_workers: 0
+pin_memory: False
+persistent_workers: False
+preprocess_on_training_start: True
