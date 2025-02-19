@@ -1,0 +1,4 @@
+lr_monitor:
+  _target_: pytorch_lightning.callbacks.LearningRateMonitor
+  logging_interval: "epoch" # 'epoch' or 'step' to log lr of all optimizers at the same interval
+  log_momentum: False # option to also log the momentum values of the optimizer
