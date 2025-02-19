@@ -15,11 +15,10 @@ class CTCLoss(torch.nn.Module):
         )
 
     def forward(self, preds_logprob, tokens_gt, cqt_lens, token_lens_gt):
-        # print(f"{preds_logprob.shape=}, {tokens_gt.shape=}")
         preds_logprob = mask_by_length(preds_logprob, cqt_lens)
         preds_logprob = torch.swapaxes(
             preds_logprob, 0, 1
-        )  # (batch, max_token_len, vocab_len) -> (max_token_len, batch, vocab_len)
+        ) 
         loss = self.ctc(preds_logprob, tokens_gt, cqt_lens, token_lens_gt)
 
         return loss
@@ -69,22 +68,14 @@ class CustomLoss(torch.nn.Module):
 
     def forward(
         self,
-        #ctc_preds_logprob,
         group_logits,
         tech_logits,
         final_tech_logits,
-        #token_preds_logits,
         frame_lens_gt,
         padded_tokens_gt,
         token_lens_gt,
     ):
-        # token_mask = make_non_pad_mask(token_lens_gt, length_dim=1).to(
-        #     token_preds_logits.device
-        # )
-        # ctc_loss = self.ctc_loss_func(
-        #     ctc_preds_logprob, padded_tokens_gt, frame_lens_gt, token_lens_gt
-        # )
-        #ce_loss = self.ce_loss_func(ctc_preds_logprob, padded_tokens_gt, token_lens_gt)
+
         group_dict = {
             0: [0],
             1: [1],
@@ -105,53 +96,19 @@ class CustomLoss(torch.nn.Module):
             9: [14, 23]
         }
         inverted_dict = {value: key for key, values in tech_dict.items() for value in values}
-        #print(inverted_dict)
         padded_tech_gt = [[inverted_dict[element] for element in row] for row in padded_tokens_gt.tolist()]
         padded_tech_gt = torch.tensor(padded_tech_gt)
-        #print(tech_logits.device)
         padded_tech_gt = padded_tech_gt.to(tech_logits.device)
         inverted_dict = {value: key for key, values in group_dict.items() for value in values}
         padded_group_gt = [[inverted_dict[element] for element in row] for row in padded_tech_gt.tolist()]
         padded_group_gt = torch.tensor(padded_group_gt)
         padded_group_gt = padded_group_gt.to(group_logits.device)
-        #print(group_logits.device)
-
-        # print("gt", padded_group_gt.shape)
-        # print("pred", group_logits.shape)
-        # print(token_lens_gt)
 
         group_loss = self.ce_loss_func_group(group_logits, padded_group_gt, token_lens_gt)
         tech_loss = self.ce_loss_func(tech_logits, padded_tech_gt, token_lens_gt)
         padded_tokens_gt = padded_tokens_gt.to(final_tech_logits.device)
-        #print(final_tech_logits.device)
         final_tech_loss = self.ce_loss_func(final_tech_logits, padded_tokens_gt, token_lens_gt)
 
-        '''--------------------------------'''
-        # group_conf = torch.max(F.softmax(group_logits, dim=-1), dim=-1)[0]
-        # tech_conf = torch.max(F.softmax(tech_logits, dim=-1), dim=-1)[0]
-        # final_tech_conf = torch.max(F.softmax(final_tech_logits, dim=-1), dim=-1)[0]
-
-        # # Adjust the weights based on the confidence scores (lower confidence = higher weight)
-        # dynamic_group_weight = 1.0 * torch.mean(1.0 - group_conf)
-        # dynamic_tech_weight = 1.0 * torch.mean(1.0 - tech_conf)
-        # dynamic_final_tech_weight = 1.0 * torch.mean(1.0 - final_tech_conf)
-
-        # # Calculate the weighted loss
-        # loss = (
-        #     dynamic_group_weight * group_loss +
-        #     dynamic_tech_weight * tech_loss +
-        #     dynamic_final_tech_weight * final_tech_loss
-        # )
-        '''-------------------------------'''
-
-        
-
-        #loss = self.alpha * ctc_loss + ce_loss
-        #loss = self.alpha * ctc_loss
-        #loss = ce_loss
-        #loss = tech_loss + 1.5*final_tech_loss
         loss = 0.5*group_loss + 1*tech_loss + 1.5*final_tech_loss
-        #loss = 0.5*group_loss + 1.5*final_tech_loss
-        #loss = 1.5*final_tech_loss
 
         return loss
