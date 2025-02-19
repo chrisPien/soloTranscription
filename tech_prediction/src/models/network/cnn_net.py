@@ -203,41 +203,16 @@ class HierarchicalOutputLayer(nn.Module):
         return group_logits, tech_logits, final_tech_logits, frame_level_final_tech_logits
 
 
-
-# class OutputLayer(nn.Module):
-#     def __init__(
-#         self,
-#         input_size: int,
-#         output_size:int,
-#         dropout: float,
-#     ):
-#         super().__init__()
-#         self.output_layer = nn.Sequential(
-#             nn.Dropout(dropout),
-#             nn.Linear(input_size, output_size),
-#             nn.LogSoftmax(dim=-1),
-#         )
-
-#     def forward(self, x):
-#         y = self.output_layer(x)
-#         y = torch.unsqueeze(y, 1)
-#         y = nn.Upsample(size=(192, 25))(y)
-#         y = torch.squeeze(y, 1)
-#         return y
-
-
 class CNNNet(nn.Module):
     def __init__(
         self,
         conv_stack: ConvStack,
-        #output_layer: OutputLayer,
         hierarchical_output_layer: HierarchicalOutputLayer,
         max_inference_length: int,
     ):
         super().__init__()
         self.conv_stack = conv_stack
         self.hierarchical_output_layer = hierarchical_output_layer()
-        #self.output_layer = output_layer()
         self.max_inference_length = max_inference_length
         self.ctc_decoder = GreedyCTCDecoder()
 
@@ -250,7 +225,6 @@ class CNNNet(nn.Module):
         memory = self.conv_stack(padded_cqt, frame_level_note_attribs, note_attribs)
         group_logits, tech_logits, final_tech_logits, frame_level_final_tech_logits = self.hierarchical_output_layer(memory, note_attribs.shape[1])
 
-        #return ctc_preds_logprob
         return group_logits, tech_logits, final_tech_logits, frame_level_final_tech_logits
     
     def inference(
@@ -267,5 +241,4 @@ class CNNNet(nn.Module):
         final_tech_preds = torch.argmax(final_tech_logits, dim=-1)
         frame_level_final_tech_preds = torch.argmax(frame_level_final_tech_logits, dim=-1)
 
-        #return ctc_preds
         return group_preds, tech_preds, final_tech_preds, frame_level_final_tech_preds
